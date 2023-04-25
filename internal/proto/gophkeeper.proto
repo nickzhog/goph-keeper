@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package proto;
+
+message RegisterRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message RegisterResponse {
+    bool ok = 1;
+}
+
+message LoginRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string login = 1;
+    string password = 2;
+}
+
+enum SecretType {
+    ACCOUNT = 0;
+    BINARY = 1;
+    NOTE = 2;
+    CARD = 3;
+}
+
+message SecretView {
+    string title = 1;
+    SecretType stype = 2;
+    string id = 3;
+}
+
+message SecretViewRequest {
+    string token = 1;
+}
+
+message SecretViewResponse {
+    repeated SecretView secrets = 1;
+}
+
+message Secret {
+    string title = 1;
+    SecretType stype = 2;
+    string id = 3;
+}
+
+message GetSecretRequest {
+    string token = 1;
+    string id = 2;
+}
+
+message GetSecretResponse {
+    bytes secret = 1;
+}
+
+service Metrics {
+  rpc Register (RegisterRequest) returns (RegisterResponse){}
+  rpc Login (LoginRequest) returns (LoginResponse){}
+  rpc SecretsView (SecretViewRequest) returns (SecretViewResponse){}
+  rpc GetSecret (GetSecretRequest) returns (GetSecretResponse){}
+}
