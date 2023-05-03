@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package proto;
 
+option go_package = "github.com/nickzhog/goph-keeper/internal/proto";
+
 message RegisterRequest {
     string login = 1;
     string password = 2;
@@ -17,8 +19,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    string login = 1;
-    string password = 2;
+    string token = 1;
 }
 
 enum SecretType {
@@ -50,14 +51,14 @@ message Secret {
 
 message GetSecretRequest {
     string token = 1;
-    string id = 2;
+    string secretid = 2;
 }
 
 message GetSecretResponse {
     bytes secret = 1;
 }
 
-service Metrics {
+service Keeper {
   rpc Register (RegisterRequest) returns (RegisterResponse){}
   rpc Login (LoginRequest) returns (LoginResponse){}
   rpc SecretsView (SecretViewRequest) returns (SecretViewResponse){}
