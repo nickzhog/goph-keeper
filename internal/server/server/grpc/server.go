@@ -7,11 +7,21 @@ import (
 	pb "github.com/nickzhog/goph-keeper/internal/proto"
 	"github.com/nickzhog/goph-keeper/internal/server/config"
 	"github.com/nickzhog/goph-keeper/internal/server/server"
+	"github.com/nickzhog/goph-keeper/internal/server/service/account"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
-func Serve(ctx context.Context, srv server.Server, cfg *config.Config) {
-	gRPCsrv := grpc.NewServer()
+func Serve(ctx context.Context, srv server.Server, cfg *config.Config, accountRep account.Repository) {
+	creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
+	if err != nil {
+		srv.Logger.Fatal(err)
+	}
+
+	gRPCsrv := grpc.NewServer(
+		grpc.Creds(creds),
+		grpc.UnaryInterceptor(NewAuthInterceptor(accountRep, cfg.Settings.JWTkey)),
+	)
 
 	pb.RegisterKeeperServer(gRPCsrv, NewKeeperServer(srv))
 	go func() {

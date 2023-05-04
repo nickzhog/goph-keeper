@@ -5,6 +5,8 @@ import (
 
 	pb "github.com/nickzhog/goph-keeper/internal/proto"
 	"github.com/nickzhog/goph-keeper/internal/server/server"
+	"github.com/nickzhog/goph-keeper/internal/server/service/account"
+	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -45,9 +47,37 @@ func (k *KeeperServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Logi
 }
 
 func (k *KeeperServer) SecretsView(ctx context.Context, in *pb.SecretViewRequest) (*pb.SecretViewResponse, error) {
+	usr := account.ReadUserFromContext(ctx)
 
+	data, err := k.srv.FindSecretsForUser(ctx, usr.ID)
+	if err == secrets.ErrNotFound {
+		return &pb.SecretViewResponse{}, nil
+	}
+
+	var answer pb.SecretViewResponse
+
+	for _, item := range data {
+		answer.Secrets = append(answer.Secrets, &pb.SecretView{
+			Id:    item.ID,
+			Title: item.Title,
+			Stype: pb.SecretType(pb.SecretType_value[item.SType]),
+		})
+	}
+
+	return &answer, nil
 }
 
 func (k *KeeperServer) GetSecret(ctx context.Context, in *pb.GetSecretRequest) (*pb.GetSecretResponse, error) {
+	usr := account.ReadUserFromContext(ctx)
 
+	secret, err := k.srv.FindSecretByID(ctx, in.Secretid)
+	if err != nil {
+		return nil, err
+	}
+
+	if secret.UserID != usr.ID {
+		return nil, status.Error(codes.Unauthenticated, "not your secret")
+	}
+
+	return &pb.GetSecretResponse{Secret: secret.Data}, nil
 }

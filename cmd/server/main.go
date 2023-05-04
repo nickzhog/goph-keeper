@@ -38,7 +38,7 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		grpc.Serve(ctx, *srv, cfg)
+		grpc.Serve(ctx, *srv, cfg, storage.Account)
 		wg.Done()
 	}()
 

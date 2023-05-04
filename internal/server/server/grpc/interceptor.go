@@ -2,10 +2,7 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -13,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func NewAuthInterceptor(accountRep account.Repository, jwtKey string) func(
+func NewAuthInterceptor(accountRep account.Repository, jwtSecretKey string) func(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
@@ -25,6 +22,11 @@ func NewAuthInterceptor(accountRep account.Repository, jwtKey string) func(
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler) (interface{}, error) {
 
+		if info.FullMethod == "/proto.Keeper/Register" ||
+			info.FullMethod == "/proto.Keeper/Login" {
+			handler(ctx, req)
+		}
+
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, status.Error(codes.InvalidArgument, "missing metadata")
@@ -35,35 +37,9 @@ func NewAuthInterceptor(accountRep account.Repository, jwtKey string) func(
 			return nil, status.Error(codes.Unauthenticated, "missing token")
 		}
 
-		claims := jwt.MapClaims{}
-		token, err := jwt.ParseWithClaims(tokenMeta[0], claims, func(t *jwt.Token) (interface{}, error) {
-			_, ok := t.Method.(*jwt.SigningMethodHMAC)
-			if !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-			}
-
-			return jwtKey, nil
-		})
-
+		userID, err := account.ValidateJWT(tokenMeta[0], []byte(jwtSecretKey))
 		if err != nil {
 			return nil, err
-		}
-
-		if !token.Valid {
-			return nil, fmt.Errorf("invalid token")
-		}
-
-		expiresTime, exist := claims["exp"].(int64)
-		if !exist {
-			return nil, fmt.Errorf("expires time missed")
-		}
-		if expiresTime < time.Now().Unix() {
-			return nil, fmt.Errorf("token not allowed")
-		}
-
-		userID, exist := claims[account.ClaimsKeyUserID].(string)
-		if !exist {
-			return nil, fmt.Errorf("user id missed")
 		}
 
 		usr, err := accountRep.FindForID(ctx, userID)
