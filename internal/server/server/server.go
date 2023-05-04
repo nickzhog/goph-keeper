@@ -62,10 +62,15 @@ func (s *Server) FindSecretsForUser(ctx context.Context, usrID string) ([]secret
 	return s.storage.Secrets.FindForUser(ctx, usrID)
 }
 
-func (s *Server) FindSecretByID(ctx context.Context, id string) (secrets.AbstractSecret, error) {
-	secret, err := s.storage.Secrets.FindByID(ctx, id)
+func (s *Server) FindSecretByID(ctx context.Context, secretID, userID string) (secrets.AbstractSecret, error) {
+	secret, err := s.storage.Secrets.FindByID(ctx, secretID)
 	if err != nil {
 		return secrets.AbstractSecret{}, err
+	}
+
+	if secret.UserID != userID {
+		return secrets.AbstractSecret{}, secrets.ErrNotFound
+
 	}
 
 	err = secret.Decrypt(s.priv)
@@ -74,4 +79,51 @@ func (s *Server) FindSecretByID(ctx context.Context, id string) (secrets.Abstrac
 	}
 
 	return secret, nil
+}
+
+func (s *Server) CreateSecret(ctx context.Context, secret secrets.AbstractSecret) error {
+	if !secret.IsValid() {
+		return secrets.ErrInvalid
+	}
+
+	err := secret.Encrypt(s.pub)
+	if err != nil {
+		return err
+	}
+
+	return s.storage.Secrets.Create(ctx, secret)
+}
+
+func (s *Server) DeleteSecret(ctx context.Context, secretID string, userID string) error {
+	secret, err := s.storage.Secrets.FindByID(ctx, secretID)
+	if err != nil {
+		return err
+	}
+
+	if secret.UserID != userID {
+		return secrets.ErrNotFound
+	}
+
+	return s.storage.Secrets.DeleteByID(ctx, secretID)
+}
+
+func (s *Server) UpdateSecret(ctx context.Context, secret secrets.AbstractSecret, userID string) error {
+	if !secret.IsValid() {
+		return secrets.ErrInvalid
+	}
+
+	err := secret.Encrypt(s.pub)
+	if err != nil {
+		return err
+	}
+
+	secretOld, err := s.storage.Secrets.FindByID(ctx, secret.ID)
+	if err != nil {
+		return err
+	}
+	if secretOld.UserID != userID {
+		return secrets.ErrNotFound
+	}
+
+	return s.storage.Secrets.Update(ctx, secret)
 }

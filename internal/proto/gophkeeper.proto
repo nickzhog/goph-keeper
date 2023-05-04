@@ -36,7 +36,6 @@ message SecretView {
 }
 
 message SecretViewRequest {
-    string token = 1;
 }
 
 message SecretViewResponse {
@@ -47,15 +46,39 @@ message Secret {
     string title = 1;
     SecretType stype = 2;
     string id = 3;
+    bytes data = 4;
 }
 
 message GetSecretRequest {
-    string token = 1;
-    string secretid = 2;
+    string secretid = 1;
 }
 
 message GetSecretResponse {
-    bytes secret = 1;
+    Secret secret = 1;
+}
+
+message CreateSecretRequest {
+    Secret secret = 1;
+}
+
+message CreateSecretResponse {
+    bool ok = 1;
+}
+
+message UpdateSecretRequest {
+    Secret secret = 1;
+}
+
+message UpdateSecretResponse {
+    bool ok = 1;
+}
+
+message DeleteSecretRequest {
+    string secretid = 1;
+}
+
+message DeleteSecretResponse {
+    bool ok = 1;
 }
 
 service Keeper {
@@ -63,4 +86,7 @@ service Keeper {
   rpc Login (LoginRequest) returns (LoginResponse){}
   rpc SecretsView (SecretViewRequest) returns (SecretViewResponse){}
   rpc GetSecret (GetSecretRequest) returns (GetSecretResponse){}
+  rpc CreateSecret (CreateSecretRequest) returns (CreateSecretResponse){}
+  rpc UpdateSecret (UpdateSecretRequest) returns (UpdateSecretResponse){}
+  rpc DeleteSecret (DeleteSecretRequest) returns (DeleteSecretResponse){}
 }

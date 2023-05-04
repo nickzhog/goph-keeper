@@ -3,39 +3,34 @@ package secretbinary
 import (
 	"bytes"
 	"encoding/gob"
-
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
+	"errors"
 )
 
 type SecretBinary struct {
-	ID     string
-	UserID string
-	Title  string
-
 	Data []byte
 	Note string
 }
 
-func NewFromAbstractSecret(secret secrets.AbstractSecret) (SecretBinary, error) {
-	var data SecretBinary
-	buf := bytes.NewBuffer(secret.Data)
-
-	err := gob.NewDecoder(buf).Decode(&data)
-	if err != nil {
-		return SecretBinary{}, err
+func (b *SecretBinary) IsValid() bool {
+	if len(b.Data) == 0 && b.Note == "" {
+		return false
 	}
 
-	return data, nil
+	return true
 }
 
-func (a *SecretBinary) ExportToAbstractSecret() (secrets.AbstractSecret, error) {
-	var buf bytes.Buffer
-	err := gob.NewEncoder(&buf).Encode(*a)
+func New(secretData []byte) (*SecretBinary, error) {
+	account := new(SecretBinary)
+
+	buf := bytes.NewBuffer(secretData)
+	err := gob.NewDecoder(buf).Decode(&account)
 	if err != nil {
-		return secrets.AbstractSecret{}, err
+		return nil, err
 	}
 
-	abstractSecret := secrets.NewSecret(a.ID, a.UserID, a.Title, secrets.TypeAccount, buf.Bytes())
+	if !account.IsValid() {
+		return nil, errors.New("not valid secret")
+	}
 
-	return *abstractSecret, nil
+	return account, nil
 }

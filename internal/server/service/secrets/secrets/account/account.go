@@ -3,15 +3,10 @@ package secretaccount
 import (
 	"bytes"
 	"encoding/gob"
-
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
+	"errors"
 )
 
 type SecretAccount struct {
-	ID     string
-	UserID string
-	Title  string
-
 	SiteDomain string
 	Login      string
 	Password   string
@@ -19,26 +14,27 @@ type SecretAccount struct {
 	Note       string
 }
 
-func NewFromAbstractSecret(secret secrets.AbstractSecret) (SecretAccount, error) {
-	var account SecretAccount
-	buf := bytes.NewBuffer(secret.Data)
+func (a *SecretAccount) IsValid() bool {
+	if a.SiteDomain == "" && a.Login == "" &&
+		a.Password == "" && a.KeyTOTP == "" && a.Note == "" {
+		return false
+	}
 
+	return true
+}
+
+func New(secretData []byte) (*SecretAccount, error) {
+	account := new(SecretAccount)
+
+	buf := bytes.NewBuffer(secretData)
 	err := gob.NewDecoder(buf).Decode(&account)
 	if err != nil {
-		return SecretAccount{}, err
+		return nil, err
+	}
+
+	if !account.IsValid() {
+		return nil, errors.New("not valid secret")
 	}
 
 	return account, nil
-}
-
-func (a *SecretAccount) ExportToAbstractSecret() (secrets.AbstractSecret, error) {
-	var buf bytes.Buffer
-	err := gob.NewEncoder(&buf).Encode(*a)
-	if err != nil {
-		return secrets.AbstractSecret{}, err
-	}
-
-	abstractSecret := secrets.NewSecret(a.ID, a.UserID, a.Title, secrets.TypeAccount, buf.Bytes())
-
-	return *abstractSecret, nil
 }

@@ -19,10 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Keeper_Register_FullMethodName    = "/proto.Keeper/Register"
-	Keeper_Login_FullMethodName       = "/proto.Keeper/Login"
-	Keeper_SecretsView_FullMethodName = "/proto.Keeper/SecretsView"
-	Keeper_GetSecret_FullMethodName   = "/proto.Keeper/GetSecret"
+	Keeper_Register_FullMethodName     = "/proto.Keeper/Register"
+	Keeper_Login_FullMethodName        = "/proto.Keeper/Login"
+	Keeper_SecretsView_FullMethodName  = "/proto.Keeper/SecretsView"
+	Keeper_GetSecret_FullMethodName    = "/proto.Keeper/GetSecret"
+	Keeper_CreateSecret_FullMethodName = "/proto.Keeper/CreateSecret"
+	Keeper_UpdateSecret_FullMethodName = "/proto.Keeper/UpdateSecret"
+	Keeper_DeleteSecret_FullMethodName = "/proto.Keeper/DeleteSecret"
 )
 
 // KeeperClient is the client API for Keeper service.
@@ -33,6 +36,9 @@ type KeeperClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	SecretsView(ctx context.Context, in *SecretViewRequest, opts ...grpc.CallOption) (*SecretViewResponse, error)
 	GetSecret(ctx context.Context, in *GetSecretRequest, opts ...grpc.CallOption) (*GetSecretResponse, error)
+	CreateSecret(ctx context.Context, in *CreateSecretRequest, opts ...grpc.CallOption) (*CreateSecretResponse, error)
+	UpdateSecret(ctx context.Context, in *UpdateSecretRequest, opts ...grpc.CallOption) (*UpdateSecretResponse, error)
+	DeleteSecret(ctx context.Context, in *DeleteSecretRequest, opts ...grpc.CallOption) (*DeleteSecretResponse, error)
 }
 
 type keeperClient struct {
@@ -79,6 +85,33 @@ func (c *keeperClient) GetSecret(ctx context.Context, in *GetSecretRequest, opts
 	return out, nil
 }
 
+func (c *keeperClient) CreateSecret(ctx context.Context, in *CreateSecretRequest, opts ...grpc.CallOption) (*CreateSecretResponse, error) {
+	out := new(CreateSecretResponse)
+	err := c.cc.Invoke(ctx, Keeper_CreateSecret_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperClient) UpdateSecret(ctx context.Context, in *UpdateSecretRequest, opts ...grpc.CallOption) (*UpdateSecretResponse, error) {
+	out := new(UpdateSecretResponse)
+	err := c.cc.Invoke(ctx, Keeper_UpdateSecret_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperClient) DeleteSecret(ctx context.Context, in *DeleteSecretRequest, opts ...grpc.CallOption) (*DeleteSecretResponse, error) {
+	out := new(DeleteSecretResponse)
+	err := c.cc.Invoke(ctx, Keeper_DeleteSecret_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KeeperServer is the server API for Keeper service.
 // All implementations must embed UnimplementedKeeperServer
 // for forward compatibility
@@ -87,6 +120,9 @@ type KeeperServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	SecretsView(context.Context, *SecretViewRequest) (*SecretViewResponse, error)
 	GetSecret(context.Context, *GetSecretRequest) (*GetSecretResponse, error)
+	CreateSecret(context.Context, *CreateSecretRequest) (*CreateSecretResponse, error)
+	UpdateSecret(context.Context, *UpdateSecretRequest) (*UpdateSecretResponse, error)
+	DeleteSecret(context.Context, *DeleteSecretRequest) (*DeleteSecretResponse, error)
 	mustEmbedUnimplementedKeeperServer()
 }
 
@@ -105,6 +141,15 @@ func (UnimplementedKeeperServer) SecretsView(context.Context, *SecretViewRequest
 }
 func (UnimplementedKeeperServer) GetSecret(context.Context, *GetSecretRequest) (*GetSecretResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSecret not implemented")
+}
+func (UnimplementedKeeperServer) CreateSecret(context.Context, *CreateSecretRequest) (*CreateSecretResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSecret not implemented")
+}
+func (UnimplementedKeeperServer) UpdateSecret(context.Context, *UpdateSecretRequest) (*UpdateSecretResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSecret not implemented")
+}
+func (UnimplementedKeeperServer) DeleteSecret(context.Context, *DeleteSecretRequest) (*DeleteSecretResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSecret not implemented")
 }
 func (UnimplementedKeeperServer) mustEmbedUnimplementedKeeperServer() {}
 
@@ -191,6 +236,60 @@ func _Keeper_GetSecret_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Keeper_CreateSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServer).CreateSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Keeper_CreateSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServer).CreateSecret(ctx, req.(*CreateSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Keeper_UpdateSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServer).UpdateSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Keeper_UpdateSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServer).UpdateSecret(ctx, req.(*UpdateSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Keeper_DeleteSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServer).DeleteSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Keeper_DeleteSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServer).DeleteSecret(ctx, req.(*DeleteSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Keeper_ServiceDesc is the grpc.ServiceDesc for Keeper service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +312,18 @@ var Keeper_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSecret",
 			Handler:    _Keeper_GetSecret_Handler,
+		},
+		{
+			MethodName: "CreateSecret",
+			Handler:    _Keeper_CreateSecret_Handler,
+		},
+		{
+			MethodName: "UpdateSecret",
+			Handler:    _Keeper_UpdateSecret_Handler,
+		},
+		{
+			MethodName: "DeleteSecret",
+			Handler:    _Keeper_DeleteSecret_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -70,14 +70,62 @@ func (k *KeeperServer) SecretsView(ctx context.Context, in *pb.SecretViewRequest
 func (k *KeeperServer) GetSecret(ctx context.Context, in *pb.GetSecretRequest) (*pb.GetSecretResponse, error) {
 	usr := account.ReadUserFromContext(ctx)
 
-	secret, err := k.srv.FindSecretByID(ctx, in.Secretid)
+	secret, err := k.srv.FindSecretByID(ctx, in.Secretid, usr.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if secret.UserID != usr.ID {
-		return nil, status.Error(codes.Unauthenticated, "not your secret")
+	return &pb.GetSecretResponse{
+		Secret: &pb.Secret{
+			Title: secret.Title,
+			Stype: pb.SecretType(pb.SecretType_value[secret.SType]),
+			Id:    secret.ID,
+			Data:  secret.Data,
+		},
+	}, nil
+}
+
+func (k *KeeperServer) CreateSecret(ctx context.Context, in *pb.CreateSecretRequest) (*pb.CreateSecretResponse, error) {
+	usr := account.ReadUserFromContext(ctx)
+
+	secret := secrets.NewSecret(
+		in.Secret.Id,
+		usr.ID, in.Secret.Title,
+		in.Secret.GetStype().String(),
+		in.Secret.Data)
+
+	err := k.srv.CreateSecret(ctx, *secret)
+	if err != nil {
+		return nil, err
 	}
 
-	return &pb.GetSecretResponse{Secret: secret.Data}, nil
+	return &pb.CreateSecretResponse{Ok: true}, nil
+}
+
+func (k *KeeperServer) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest) (*pb.DeleteSecretResponse, error) {
+	usr := account.ReadUserFromContext(ctx)
+
+	err := k.srv.DeleteSecret(ctx, in.Secretid, usr.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DeleteSecretResponse{Ok: true}, nil
+}
+
+func (k *KeeperServer) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequest) (*pb.UpdateSecretResponse, error) {
+	usr := account.ReadUserFromContext(ctx)
+
+	secret := secrets.NewSecret(
+		in.Secret.Id,
+		usr.ID, in.Secret.Title,
+		in.Secret.GetStype().String(),
+		in.Secret.Data)
+
+	err := k.srv.UpdateSecret(ctx, *secret, usr.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UpdateSecretResponse{Ok: true}, nil
 }

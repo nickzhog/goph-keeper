@@ -3,38 +3,33 @@ package secretnote
 import (
 	"bytes"
 	"encoding/gob"
-
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
+	"errors"
 )
 
 type SecretNote struct {
-	ID     string
-	UserID string
-	Title  string
-
 	Note string
 }
 
-func NewFromAbstractSecret(secret secrets.AbstractSecret) (SecretNote, error) {
-	var note SecretNote
-	buf := bytes.NewBuffer(secret.Data)
-
-	err := gob.NewDecoder(buf).Decode(&note)
-	if err != nil {
-		return SecretNote{}, err
+func (n *SecretNote) IsValid() bool {
+	if n.Note == "" {
+		return false
 	}
 
-	return note, nil
+	return true
 }
 
-func (a *SecretNote) ExportToAbstractSecret() (secrets.AbstractSecret, error) {
-	var buf bytes.Buffer
-	err := gob.NewEncoder(&buf).Encode(*a)
+func New(secretData []byte) (*SecretNote, error) {
+	account := new(SecretNote)
+
+	buf := bytes.NewBuffer(secretData)
+	err := gob.NewDecoder(buf).Decode(&account)
 	if err != nil {
-		return secrets.AbstractSecret{}, err
+		return nil, err
 	}
 
-	abstractSecret := secrets.NewSecret(a.ID, a.UserID, a.Title, secrets.TypeAccount, buf.Bytes())
+	if !account.IsValid() {
+		return nil, errors.New("not valid secret")
+	}
 
-	return *abstractSecret, nil
+	return account, nil
 }

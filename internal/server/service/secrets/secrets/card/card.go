@@ -1,17 +1,12 @@
-package SecretBinary
+package secretcard
 
 import (
 	"bytes"
 	"encoding/gob"
-
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
+	"errors"
 )
 
-type SecretBinary struct {
-	ID     string
-	UserID string
-	Title  string
-
+type SecretCard struct {
 	Number     string
 	Month      string
 	Year       string
@@ -20,26 +15,28 @@ type SecretBinary struct {
 	Note       string
 }
 
-func NewFromAbstractSecret(secret secrets.AbstractSecret) (SecretBinary, error) {
-	var card SecretBinary
-	buf := bytes.NewBuffer(secret.Data)
-
-	err := gob.NewDecoder(buf).Decode(&card)
-	if err != nil {
-		return SecretBinary{}, err
+func (card *SecretCard) IsValid() bool {
+	if card.Number == "" && card.Month == "" &&
+		card.Year == "" && card.CVV == "" &&
+		card.HolderName == "" && card.Note == "" {
+		return false
 	}
 
-	return card, nil
+	return true
 }
 
-func (a *SecretBinary) ExportToAbstractSecret() (secrets.AbstractSecret, error) {
-	var buf bytes.Buffer
-	err := gob.NewEncoder(&buf).Encode(*a)
+func New(secretData []byte) (*SecretCard, error) {
+	account := new(SecretCard)
+
+	buf := bytes.NewBuffer(secretData)
+	err := gob.NewDecoder(buf).Decode(&account)
 	if err != nil {
-		return secrets.AbstractSecret{}, err
+		return nil, err
 	}
 
-	abstractSecret := secrets.NewSecret(a.ID, a.UserID, a.Title, secrets.TypeAccount, buf.Bytes())
+	if !account.IsValid() {
+		return nil, errors.New("not valid secret")
+	}
 
-	return *abstractSecret, nil
+	return account, nil
 }
