@@ -13,7 +13,7 @@ import (
 )
 
 func Serve(ctx context.Context, srv server.Server, cfg *config.Config, accountRep account.Repository) {
-	creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
+	creds, err := credentials.NewServerTLSFromFile(cfg.GRPC.CertSSL, cfg.GRPC.PrivateKeySSL)
 	if err != nil {
 		srv.Logger.Fatal(err)
 	}
@@ -25,7 +25,7 @@ func Serve(ctx context.Context, srv server.Server, cfg *config.Config, accountRe
 
 	pb.RegisterKeeperServer(gRPCsrv, NewKeeperServer(srv))
 	go func() {
-		listen, err := net.Listen("tcp", cfg.Settings.AddressGRPC)
+		listen, err := net.Listen("tcp", cfg.GRPC.AddressGRPC)
 		if err != nil {
 			srv.Logger.Fatal(err)
 		}
