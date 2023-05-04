@@ -99,13 +99,12 @@ func (r *repository) Update(ctx context.Context, secret secrets.AbstractSecret) 
 	SET
 		stype = $1, 
 		title = $2,
-	 	data_encrypted = $3,
-		account_id = $4
+	 	data_encrypted = $3
 	WHERE
 		id = $5
 	`
 	_, err := r.client.Exec(ctx, q,
-		secret.SType, secret.Title, secret.Data, secret.UserID, secret.ID)
+		secret.SType, secret.Title, secret.Data, secret.ID)
 	return err
 }
 
