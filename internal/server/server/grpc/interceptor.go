@@ -24,7 +24,7 @@ func NewAuthInterceptor(accountRep account.Repository, jwtSecretKey string) func
 
 		if info.FullMethod == "/proto.Keeper/Register" ||
 			info.FullMethod == "/proto.Keeper/Login" {
-			handler(ctx, req)
+			return handler(ctx, req)
 		}
 
 		md, ok := metadata.FromIncomingContext(ctx)
