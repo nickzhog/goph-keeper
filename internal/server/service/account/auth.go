@@ -8,10 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 )
 
-const (
-	ClaimsKeyUserID = "user_id"
-	expireDuration  = time.Hour
-)
+const expireDuration = time.Hour
 
 type Claims struct {
 	jwt.StandardClaims
@@ -57,7 +54,7 @@ type ContextUserKey string
 
 const contextUserKey ContextUserKey = "user"
 
-func WriteUserToContext(usr Account, ctx context.Context) context.Context {
+func WriteUserToContext(ctx context.Context, usr Account) context.Context {
 	return context.WithValue(ctx, contextUserKey, usr)
 }
 

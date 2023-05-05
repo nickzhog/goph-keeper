@@ -47,7 +47,7 @@ func NewAuthInterceptor(accountRep account.Repository, jwtSecretKey string) func
 			return nil, err
 		}
 
-		ctx = account.WriteUserToContext(usr, ctx)
+		ctx = account.WriteUserToContext(ctx, usr)
 
 		return handler(ctx, req)
 	}
