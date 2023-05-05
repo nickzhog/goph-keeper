@@ -90,6 +90,7 @@ func (s *AbstractSecret) Decrypt(key *rsa.PrivateKey) error {
 	}
 
 	s.Data = decrypted
+	s.IsEncrypted = false
 
 	return nil
 }
