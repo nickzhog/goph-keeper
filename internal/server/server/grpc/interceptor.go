@@ -32,7 +32,7 @@ func NewAuthInterceptor(accountRep account.Repository, jwtSecretKey string) func
 			return nil, status.Error(codes.InvalidArgument, "missing metadata")
 		}
 
-		tokenMeta, ok := md["token"]
+		tokenMeta, ok := md["Authorization"]
 		if !ok || len(tokenMeta) == 0 {
 			return nil, status.Error(codes.Unauthenticated, "missing token")
 		}

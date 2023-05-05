@@ -28,10 +28,7 @@ func NewServer(logger *logging.Logger, cfg *config.Config, storage service.Stora
 		logger.Fatal(err)
 	}
 
-	pub, err := encryption.NewPublicKey(cfg.Settings.PublicKey)
-	if err != nil {
-		logger.Fatal(err)
-	}
+	pub := &priv.PublicKey
 
 	jwtKey := cfg.Settings.JWTkey
 
