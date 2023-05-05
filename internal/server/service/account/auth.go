@@ -45,7 +45,7 @@ func ValidateJWT(tokenStr string, secretKey []byte) (userID string, err error) {
 	}
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims.ID, nil
+		return claims.UserID, nil
 	}
 
 	return "", ErrInvalidAccessToken
