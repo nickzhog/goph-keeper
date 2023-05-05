@@ -1,8 +1,7 @@
 package secretcard
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 	"errors"
 )
 
@@ -25,18 +24,17 @@ func (card *SecretCard) IsValid() bool {
 	return true
 }
 
-func New(secretData []byte) (*SecretCard, error) {
-	account := new(SecretCard)
+func Unmarshal(secretData []byte) (*SecretCard, error) {
+	var card SecretCard
 
-	buf := bytes.NewBuffer(secretData)
-	err := gob.NewDecoder(buf).Decode(&account)
+	err := json.Unmarshal(secretData, &card)
 	if err != nil {
 		return nil, err
 	}
 
-	if !account.IsValid() {
+	if !card.IsValid() {
 		return nil, errors.New("not valid secret")
 	}
 
-	return account, nil
+	return &card, nil
 }

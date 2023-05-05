@@ -1,8 +1,7 @@
 package secretbinary
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 	"errors"
 )
 
@@ -19,18 +18,16 @@ func (b *SecretBinary) IsValid() bool {
 	return true
 }
 
-func New(secretData []byte) (*SecretBinary, error) {
-	account := new(SecretBinary)
-
-	buf := bytes.NewBuffer(secretData)
-	err := gob.NewDecoder(buf).Decode(&account)
+func Unmarshal(secretData []byte) (*SecretBinary, error) {
+	var data SecretBinary
+	err := json.Unmarshal(secretData, &data)
 	if err != nil {
 		return nil, err
 	}
 
-	if !account.IsValid() {
+	if !data.IsValid() {
 		return nil, errors.New("not valid secret")
 	}
 
-	return account, nil
+	return &data, nil
 }

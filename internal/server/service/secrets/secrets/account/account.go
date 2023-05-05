@@ -1,8 +1,7 @@
 package secretaccount
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 	"errors"
 )
 
@@ -23,11 +22,10 @@ func (a *SecretAccount) IsValid() bool {
 	return true
 }
 
-func New(secretData []byte) (*SecretAccount, error) {
-	account := new(SecretAccount)
+func Unmarshal(secretData []byte) (*SecretAccount, error) {
+	var account SecretAccount
 
-	buf := bytes.NewBuffer(secretData)
-	err := gob.NewDecoder(buf).Decode(&account)
+	err := json.Unmarshal(secretData, &account)
 	if err != nil {
 		return nil, err
 	}
@@ -36,5 +34,5 @@ func New(secretData []byte) (*SecretAccount, error) {
 		return nil, errors.New("not valid secret")
 	}
 
-	return account, nil
+	return &account, nil
 }

@@ -1,8 +1,7 @@
 package secretnote
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 	"errors"
 )
 
@@ -18,18 +17,16 @@ func (n *SecretNote) IsValid() bool {
 	return true
 }
 
-func New(secretData []byte) (*SecretNote, error) {
-	account := new(SecretNote)
-
-	buf := bytes.NewBuffer(secretData)
-	err := gob.NewDecoder(buf).Decode(&account)
+func Unmarshal(secretData []byte) (*SecretNote, error) {
+	var note SecretNote
+	err := json.Unmarshal(secretData, &note)
 	if err != nil {
 		return nil, err
 	}
 
-	if !account.IsValid() {
+	if !note.IsValid() {
 		return nil, errors.New("not valid secret")
 	}
 
-	return account, nil
+	return &note, nil
 }

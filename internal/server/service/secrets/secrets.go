@@ -34,17 +34,17 @@ type AbstractSecret struct {
 func (s *AbstractSecret) IsValid() bool {
 	switch s.SType {
 	case TypeAccount:
-		_, err := secretaccount.New(s.Data)
+		_, err := secretaccount.Unmarshal(s.Data)
 		return err == nil
 
 	case TypeBinary:
-		_, err := secretbinary.New(s.Data)
+		_, err := secretbinary.Unmarshal(s.Data)
 		return err == nil
 	case TypeCard:
-		_, err := secretcard.New(s.Data)
+		_, err := secretcard.Unmarshal(s.Data)
 		return err == nil
 	case TypeNote:
-		_, err := secretnote.New(s.Data)
+		_, err := secretnote.Unmarshal(s.Data)
 		return err == nil
 
 	default:
