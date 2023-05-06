@@ -10,7 +10,7 @@ import (
 	"github.com/nickzhog/goph-keeper/internal/server/config"
 	"github.com/nickzhog/goph-keeper/internal/server/server"
 	"github.com/nickzhog/goph-keeper/internal/server/server/grpc"
-	"github.com/nickzhog/goph-keeper/internal/server/service"
+	"github.com/nickzhog/goph-keeper/internal/server/storage"
 	"github.com/nickzhog/goph-keeper/pkg/logging"
 )
 
@@ -30,7 +30,7 @@ func main() {
 		cancel()
 	}()
 
-	storage := service.NewPostgresStorage(ctx, logger, cfg.PostgresStorage.DatabaseDSN)
+	storage := storage.NewPostgresStorage(ctx, logger, cfg.PostgresStorage.DatabaseDSN)
 
 	srv := server.NewServer(logger, cfg, storage)
 

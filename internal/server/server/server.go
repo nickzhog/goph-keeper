@@ -5,8 +5,8 @@ import (
 	"crypto/rsa"
 
 	"github.com/nickzhog/goph-keeper/internal/server/config"
-	"github.com/nickzhog/goph-keeper/internal/server/service"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
+	"github.com/nickzhog/goph-keeper/internal/server/storage"
 	"github.com/nickzhog/goph-keeper/pkg/encryption"
 	"github.com/nickzhog/goph-keeper/pkg/logging"
 	"github.com/nickzhog/goph-keeper/pkg/secrets"
@@ -14,7 +14,7 @@ import (
 
 type Server struct {
 	Logger  *logging.Logger
-	storage service.Storage
+	storage storage.Storage
 	cfg     *config.Config
 
 	priv         *rsa.PrivateKey
@@ -22,7 +22,7 @@ type Server struct {
 	jwtSecretKey []byte
 }
 
-func NewServer(logger *logging.Logger, cfg *config.Config, storage service.Storage) *Server {
+func NewServer(logger *logging.Logger, cfg *config.Config, storage storage.Storage) *Server {
 	priv, err := encryption.NewPrivateKey(cfg.Settings.PrivateKey)
 	if err != nil {
 		logger.Fatal(err)
