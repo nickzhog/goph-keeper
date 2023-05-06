@@ -6,11 +6,12 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
+	"github.com/nickzhog/goph-keeper/internal/server/service/secret"
 	"github.com/nickzhog/goph-keeper/pkg/logging"
+	"github.com/nickzhog/goph-keeper/pkg/secrets"
 )
 
-var _ secrets.Repository = (*repository)(nil)
+var _ secret.Repository = (*repository)(nil)
 
 type repository struct {
 	logger *logging.Logger
@@ -67,7 +68,7 @@ func (r *repository) FindForUser(ctx context.Context, usrID string) ([]secrets.A
 	FROM 
 		public.secret
 	WHERE 
-		id = $1
+		account_id = $1
 	`
 
 	rows, err := r.client.Query(ctx, q)
@@ -86,6 +87,7 @@ func (r *repository) FindForUser(ctx context.Context, usrID string) ([]secrets.A
 			return nil, err
 		}
 
+		s.IsEncrypted = true
 		answer = append(answer, s)
 	}
 

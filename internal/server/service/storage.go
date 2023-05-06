@@ -8,14 +8,14 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
 	accountdb "github.com/nickzhog/goph-keeper/internal/server/service/account/db"
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
-	secretsdb "github.com/nickzhog/goph-keeper/internal/server/service/secrets/db"
+	"github.com/nickzhog/goph-keeper/internal/server/service/secret"
+	secretsdb "github.com/nickzhog/goph-keeper/internal/server/service/secret/db"
 	"github.com/nickzhog/goph-keeper/pkg/logging"
 )
 
 type Storage struct {
 	Account account.Repository
-	Secrets secrets.Repository
+	Secrets secret.Repository
 }
 
 func NewPostgresStorage(ctx context.Context, logger *logging.Logger, dsn string) Storage {

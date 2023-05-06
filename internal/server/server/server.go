@@ -7,9 +7,9 @@ import (
 	"github.com/nickzhog/goph-keeper/internal/server/config"
 	"github.com/nickzhog/goph-keeper/internal/server/service"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
 	"github.com/nickzhog/goph-keeper/pkg/encryption"
 	"github.com/nickzhog/goph-keeper/pkg/logging"
+	"github.com/nickzhog/goph-keeper/pkg/secrets"
 )
 
 type Server struct {

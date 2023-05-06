@@ -6,7 +6,7 @@ import (
 	pb "github.com/nickzhog/goph-keeper/internal/proto"
 	"github.com/nickzhog/goph-keeper/internal/server/server"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
-	"github.com/nickzhog/goph-keeper/internal/server/service/secrets"
+	"github.com/nickzhog/goph-keeper/pkg/secrets"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

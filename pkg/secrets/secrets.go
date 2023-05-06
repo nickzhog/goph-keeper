@@ -4,11 +4,11 @@ import (
 	"crypto/rsa"
 	"errors"
 
-	secretaccount "github.com/nickzhog/goph-keeper/internal/server/service/secrets/secrets/account"
-	secretbinary "github.com/nickzhog/goph-keeper/internal/server/service/secrets/secrets/binary"
-	secretcard "github.com/nickzhog/goph-keeper/internal/server/service/secrets/secrets/card"
-	secretnote "github.com/nickzhog/goph-keeper/internal/server/service/secrets/secrets/note"
 	"github.com/nickzhog/goph-keeper/pkg/encryption"
+	secretaccount "github.com/nickzhog/goph-keeper/pkg/secrets/account"
+	secretbinary "github.com/nickzhog/goph-keeper/pkg/secrets/binary"
+	secretcard "github.com/nickzhog/goph-keeper/pkg/secrets/card"
+	secretnote "github.com/nickzhog/goph-keeper/pkg/secrets/note"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -74,8 +74,9 @@ func (s *AbstractSecret) Encrypt(key *rsa.PublicKey) error {
 		return err
 	}
 
-	s.IsEncrypted = true
 	s.Data = encrypted
+	s.IsEncrypted = true
+
 	return nil
 }
 
