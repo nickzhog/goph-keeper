@@ -39,12 +39,12 @@ func NewAuthInterceptor(accountRep account.Repository, jwtSecretKey string) func
 
 		userID, err := account.ValidateJWT(tokenMeta[0], []byte(jwtSecretKey))
 		if err != nil {
-			return nil, err
+			return nil, status.Error(codes.Unauthenticated, "token invalid")
 		}
 
 		usr, err := accountRep.FindForID(ctx, userID)
 		if err != nil {
-			return nil, err
+			return nil, status.Error(codes.Unauthenticated, "token invalid")
 		}
 
 		ctx = account.WriteUserToContext(ctx, usr)

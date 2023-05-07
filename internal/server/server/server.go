@@ -109,11 +109,6 @@ func (s *Server) UpdateSecret(ctx context.Context, secret secrets.AbstractSecret
 		return secrets.ErrInvalid
 	}
 
-	err := secret.Encrypt(s.pub)
-	if err != nil {
-		return err
-	}
-
 	secretOld, err := s.storage.Secrets.FindByID(ctx, secret.ID)
 	if err != nil {
 		return err
