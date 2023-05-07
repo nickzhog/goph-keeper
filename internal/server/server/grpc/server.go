@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	pb "github.com/nickzhog/goph-keeper/internal/proto"
+	pb "github.com/nickzhog/goph-keeper/api/proto"
 	"github.com/nickzhog/goph-keeper/internal/server/config"
 	"github.com/nickzhog/goph-keeper/internal/server/server"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"

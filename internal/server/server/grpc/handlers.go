@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	pb "github.com/nickzhog/goph-keeper/internal/proto"
+	pb "github.com/nickzhog/goph-keeper/api/proto"
 	"github.com/nickzhog/goph-keeper/internal/server/server"
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
 	"github.com/nickzhog/goph-keeper/pkg/secrets"
@@ -90,7 +90,8 @@ func (k *KeeperServer) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 
 	secret := secrets.NewSecret(
 		in.Secret.Id,
-		usr.ID, in.Secret.Title,
+		usr.ID,
+		in.Secret.Title,
 		in.Secret.GetStype().String(),
 		in.Secret.Data)
 
@@ -118,7 +119,8 @@ func (k *KeeperServer) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequ
 
 	secret := secrets.NewSecret(
 		in.Secret.Id,
-		usr.ID, in.Secret.Title,
+		usr.ID,
+		in.Secret.Title,
 		in.Secret.GetStype().String(),
 		in.Secret.Data)
 

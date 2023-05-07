@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto;
 
-option go_package = "github.com/nickzhog/goph-keeper/internal/proto";
+option go_package = "github.com/nickzhog/goph-keeper/api/proto";
 
 message RegisterRequest {
     string login = 1;
