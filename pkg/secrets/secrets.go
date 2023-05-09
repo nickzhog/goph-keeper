@@ -31,25 +31,37 @@ type AbstractSecret struct {
 	IsEncrypted bool
 }
 
-func (s *AbstractSecret) IsValid() bool {
+func (s *AbstractSecret) Validate() error {
 	switch s.SType {
 	case TypeAccount:
 		_, err := secretaccount.Unmarshal(s.Data)
-		return err == nil
+		if err != nil {
+			return ErrInvalid
+		}
+		return nil
 
 	case TypeBinary:
 		_, err := secretbinary.Unmarshal(s.Data)
-		return err == nil
+		if err != nil {
+			return ErrInvalid
+		}
+		return nil
 	case TypeCard:
 		_, err := secretcard.Unmarshal(s.Data)
-		return err == nil
+		if err != nil {
+			return ErrInvalid
+		}
+		return nil
 	case TypeNote:
 		_, err := secretnote.Unmarshal(s.Data)
-		return err == nil
-
+		if err != nil {
+			return ErrInvalid
+		}
+		return nil
 	default:
-		return false
 	}
+
+	return ErrWrongType
 }
 
 func NewSecret(id, userID, title, stype string, data []byte) *AbstractSecret {

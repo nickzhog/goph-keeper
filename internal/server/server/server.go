@@ -79,7 +79,7 @@ func (s *Server) FindSecretByID(ctx context.Context, secretID, userID string) (s
 }
 
 func (s *Server) CreateSecret(ctx context.Context, secret secrets.AbstractSecret) error {
-	if !secret.IsValid() {
+	if err := secret.Validate(); err != nil {
 		return secrets.ErrInvalid
 	}
 
@@ -105,7 +105,7 @@ func (s *Server) DeleteSecret(ctx context.Context, secretID string, userID strin
 }
 
 func (s *Server) UpdateSecret(ctx context.Context, secret secrets.AbstractSecret, userID string) error {
-	if !secret.IsValid() {
+	if err := secret.Validate(); err != nil {
 		return secrets.ErrInvalid
 	}
 
