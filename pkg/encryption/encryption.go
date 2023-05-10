@@ -33,7 +33,7 @@ func parseFile(filePath string) (*pem.Block, error) {
 	return block, nil
 }
 
-func NewPrivateKey(filePath string) (*rsa.PrivateKey, error) {
+func GetPrivateKeyFromFile(filePath string) (*rsa.PrivateKey, error) {
 	block, err := parseFile(filePath)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func NewPrivateKey(filePath string) (*rsa.PrivateKey, error) {
 	return privKey, nil
 }
 
-func NewPublicKey(filePath string) (*rsa.PublicKey, error) {
+func GetPublicKeyFromFile(filePath string) (*rsa.PublicKey, error) {
 	block, err := parseFile(filePath)
 	if err != nil {
 		return nil, err

@@ -23,7 +23,7 @@ type Server struct {
 }
 
 func NewServer(logger *logging.Logger, cfg *config.Config, storage storage.Storage) *Server {
-	priv, err := encryption.NewPrivateKey(cfg.Settings.PrivateKey)
+	priv, err := encryption.GetPrivateKeyFromFile(cfg.Settings.PrivateKey)
 	if err != nil {
 		logger.Fatal(err)
 	}
