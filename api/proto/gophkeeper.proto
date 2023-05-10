@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/nickzhog/goph-keeper/api/proto";
+
+message RegisterRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message RegisterResponse {
+    bool ok = 1;
+}
+
+message LoginRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+}
+
+enum SecretType {
+    ACCOUNT = 0;
+    BINARY = 1;
+    NOTE = 2;
+    CARD = 3;
+}
+
+message SecretView {
+    string title = 1;
+    SecretType stype = 2;
+    string id = 3;
+}
+
+message SecretViewRequest {
+}
+
+message SecretViewResponse {
+    repeated SecretView secrets = 1;
+}
+
+message Secret {
+    string title = 1;
+    SecretType stype = 2;
+    string id = 3;
+    bytes data = 4;
+}
+
+message GetSecretRequest {
+    string secretid = 1;
+}
+
+message GetSecretResponse {
+    Secret secret = 1;
+}
+
+message CreateSecretRequest {
+    Secret secret = 1;
+}
+
+message CreateSecretResponse {
+    bool ok = 1;
+}
+
+message UpdateSecretRequest {
+    Secret secret = 1;
+}
+
+message UpdateSecretResponse {
+    bool ok = 1;
+}
+
+message DeleteSecretRequest {
+    string secretid = 1;
+}
+
+message DeleteSecretResponse {
+    bool ok = 1;
+}
+
+service Keeper {
+  rpc Register (RegisterRequest) returns (RegisterResponse){}
+  rpc Login (LoginRequest) returns (LoginResponse){}
+  rpc SecretsView (SecretViewRequest) returns (SecretViewResponse){}
+  rpc GetSecret (GetSecretRequest) returns (GetSecretResponse){}
+  rpc CreateSecret (CreateSecretRequest) returns (CreateSecretResponse){}
+  rpc UpdateSecret (UpdateSecretRequest) returns (UpdateSecretResponse){}
+  rpc DeleteSecret (DeleteSecretRequest) returns (DeleteSecretResponse){}
+}
