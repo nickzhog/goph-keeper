@@ -6,8 +6,8 @@ import (
 )
 
 type SecretBinary struct {
-	Data []byte
-	Note string
+	Data []byte `json:"data,omitempty"`
+	Note string `json:"note,omitempty"`
 }
 
 func (b *SecretBinary) IsValid() bool {
@@ -16,6 +16,11 @@ func (b *SecretBinary) IsValid() bool {
 	}
 
 	return true
+}
+
+func (b *SecretBinary) Marshal() []byte {
+	data, _ := json.Marshal(b)
+	return data
 }
 
 func Unmarshal(secretData []byte) (*SecretBinary, error) {
@@ -30,4 +35,11 @@ func Unmarshal(secretData []byte) (*SecretBinary, error) {
 	}
 
 	return &data, nil
+}
+
+func New(data []byte, note string) *SecretBinary {
+	return &SecretBinary{
+		Data: data,
+		Note: note,
+	}
 }

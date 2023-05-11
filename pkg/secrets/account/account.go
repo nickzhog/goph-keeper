@@ -6,11 +6,11 @@ import (
 )
 
 type SecretAccount struct {
-	SiteDomain string
-	Login      string
-	Password   string
-	KeyTOTP    string
-	Note       string
+	SiteDomain string `json:"site_domain,omitempty"`
+	Login      string `json:"login,omitempty"`
+	Password   string `json:"password,omitempty"`
+	KeyTOTP    string `json:"key_totp,omitempty"`
+	Note       string `json:"note,omitempty"`
 }
 
 func (a *SecretAccount) IsValid() bool {
@@ -20,6 +20,11 @@ func (a *SecretAccount) IsValid() bool {
 	}
 
 	return true
+}
+
+func (a *SecretAccount) Marshal() []byte {
+	data, _ := json.Marshal(a)
+	return data
 }
 
 func Unmarshal(secretData []byte) (*SecretAccount, error) {
@@ -35,4 +40,14 @@ func Unmarshal(secretData []byte) (*SecretAccount, error) {
 	}
 
 	return &account, nil
+}
+
+func New(site, login, password, keytotp, note string) *SecretAccount {
+	return &SecretAccount{
+		SiteDomain: site,
+		Login:      login,
+		Password:   password,
+		KeyTOTP:    keytotp,
+		Note:       note,
+	}
 }

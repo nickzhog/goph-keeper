@@ -6,7 +6,7 @@ import (
 )
 
 type SecretNote struct {
-	Note string
+	Note string `json:"note,omitempty"`
 }
 
 func (n *SecretNote) IsValid() bool {
@@ -15,6 +15,11 @@ func (n *SecretNote) IsValid() bool {
 	}
 
 	return true
+}
+
+func (n *SecretNote) Marshal() []byte {
+	data, _ := json.Marshal(n)
+	return data
 }
 
 func Unmarshal(secretData []byte) (*SecretNote, error) {
@@ -29,4 +34,10 @@ func Unmarshal(secretData []byte) (*SecretNote, error) {
 	}
 
 	return &note, nil
+}
+
+func New(note string) *SecretNote {
+	return &SecretNote{
+		Note: note,
+	}
 }

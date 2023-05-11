@@ -6,12 +6,12 @@ import (
 )
 
 type SecretCard struct {
-	Number     string
-	Month      string
-	Year       string
-	CVV        string
-	HolderName string
-	Note       string
+	Number     string `json:"number,omitempty"`
+	Month      string `json:"month,omitempty"`
+	Year       string `json:"year,omitempty"`
+	CVV        string `json:"cvv,omitempty"`
+	HolderName string `json:"holder_name,omitempty"`
+	Note       string `json:"note,omitempty"`
 }
 
 func (card *SecretCard) IsValid() bool {
@@ -22,6 +22,11 @@ func (card *SecretCard) IsValid() bool {
 	}
 
 	return true
+}
+
+func (card *SecretCard) Marshal() []byte {
+	data, _ := json.Marshal(card)
+	return data
 }
 
 func Unmarshal(secretData []byte) (*SecretCard, error) {
@@ -37,4 +42,15 @@ func Unmarshal(secretData []byte) (*SecretCard, error) {
 	}
 
 	return &card, nil
+}
+
+func New(number, month, year, cvv, holder, note string) *SecretCard {
+	return &SecretCard{
+		Number:     number,
+		Month:      month,
+		Year:       year,
+		CVV:        cvv,
+		HolderName: holder,
+		Note:       note,
+	}
 }
