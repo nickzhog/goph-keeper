@@ -14,6 +14,8 @@ import (
 var ErrNotFound = errors.New("not found")
 var ErrWrongType = errors.New("wrong type")
 var ErrInvalid = errors.New("invalid secret")
+var ErrAlreadyEncrypted = errors.New("already encrypted")
+var ErrAlreadyDecrypted = errors.New("already decrypted")
 
 const (
 	TypeAccount = "ACCOUNT"
@@ -64,13 +66,27 @@ func (s *AbstractSecret) Validate() error {
 	return ErrWrongType
 }
 
-func NewSecret(id, userID, title, stype string, data []byte) *AbstractSecret {
+func NewSecretWithoutEncryptedData(id, userID, title, stype string, data []byte) *AbstractSecret {
 	secret := &AbstractSecret{
-		ID:     id,
-		UserID: userID,
-		Title:  title,
-		SType:  stype,
-		Data:   data,
+		ID:          id,
+		UserID:      userID,
+		Title:       title,
+		SType:       stype,
+		Data:        data,
+		IsEncrypted: false,
+	}
+
+	return secret
+}
+
+func NewSecretWithEncryptedData(id, userID, title, stype string, data []byte) *AbstractSecret {
+	secret := &AbstractSecret{
+		ID:          id,
+		UserID:      userID,
+		Title:       title,
+		SType:       stype,
+		Data:        data,
+		IsEncrypted: true,
 	}
 
 	return secret
@@ -78,7 +94,7 @@ func NewSecret(id, userID, title, stype string, data []byte) *AbstractSecret {
 
 func (s *AbstractSecret) Encrypt(key *rsa.PublicKey) error {
 	if s.IsEncrypted {
-		return nil
+		return ErrAlreadyEncrypted
 	}
 
 	encrypted, err := encryption.EncryptData(s.Data, key)
@@ -94,7 +110,7 @@ func (s *AbstractSecret) Encrypt(key *rsa.PublicKey) error {
 
 func (s *AbstractSecret) Decrypt(key *rsa.PrivateKey) error {
 	if !s.IsEncrypted {
-		return nil
+		return ErrAlreadyDecrypted
 	}
 
 	decrypted, err := encryption.DecryptData(s.Data, key)
