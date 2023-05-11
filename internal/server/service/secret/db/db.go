@@ -71,7 +71,7 @@ func (r *repository) FindForUser(ctx context.Context, usrID string) ([]secrets.A
 		account_id = $1
 	`
 
-	rows, err := r.client.Query(ctx, q)
+	rows, err := r.client.Query(ctx, q, usrID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, secrets.ErrNotFound
