@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nickzhog/goph-keeper/internal/server/service/account"
 	"google.golang.org/grpc"
@@ -32,12 +33,19 @@ func NewAuthInterceptor(accountRep account.Repository, jwtSecretKey string) func
 			return nil, status.Error(codes.Unauthenticated, "missing metadata")
 		}
 
-		tokenMeta, ok := md["Authorization"]
-		if !ok || len(tokenMeta) == 0 {
+		tokenMeta := md.Get("Authorization")
+		if len(tokenMeta) == 0 {
 			return nil, status.Error(codes.Unauthenticated, "missing token")
 		}
 
-		userID, err := account.ValidateJWT(tokenMeta[0], []byte(jwtSecretKey))
+		tokenParts := strings.Split(tokenMeta[0], " ")
+		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+			return nil, status.Error(codes.Unauthenticated, "invalid token")
+		}
+
+		token := tokenParts[1]
+
+		userID, err := account.ValidateJWT(token, []byte(jwtSecretKey))
 		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, "token invalid")
 		}

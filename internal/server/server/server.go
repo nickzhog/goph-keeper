@@ -117,5 +117,9 @@ func (s *Server) UpdateSecret(ctx context.Context, secret secrets.AbstractSecret
 		return secrets.ErrNotFound
 	}
 
+	if err := secret.Encrypt(s.pub); err != nil {
+		return secrets.ErrInvalid
+	}
+
 	return s.storage.Secrets.Update(ctx, secret)
 }
