@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS public.secret (
     title TEXT NOT NULL,
     data_encrypted BYTEA NOT NULL,
     account_id UUID REFERENCES public.account (id),
-    UNIQUE(stype, title)
+    UNIQUE(stype, title, account_id)
 );

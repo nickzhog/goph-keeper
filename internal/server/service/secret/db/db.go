@@ -25,7 +25,7 @@ func NewRepository(logger *logging.Logger, client *pgxpool.Pool) *repository {
 	}
 }
 
-func (r *repository) Create(ctx context.Context, secret secrets.AbstractSecret) error {
+func (r *repository) Create(ctx context.Context, userID string, secret secrets.AbstractSecret) error {
 	q := `
 	INSERT INTO public.secret 
 		(stype, title, data_encrypted, account_id)
@@ -33,7 +33,7 @@ func (r *repository) Create(ctx context.Context, secret secrets.AbstractSecret) 
 		($1, $2, $3, $4)
 	`
 	_, err := r.client.Exec(ctx, q,
-		secret.SType, secret.Title, secret.Data, secret.UserID)
+		secret.SType, secret.Title, secret.Data, userID)
 	return err
 }
 

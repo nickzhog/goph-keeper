@@ -99,7 +99,7 @@ func (k *KeeperServer) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 		in.Secret.GetStype().String(),
 		in.Secret.Data)
 
-	err := k.srv.CreateSecret(ctx, *secret)
+	err := k.srv.CreateSecret(ctx, usr.ID, *secret)
 	if err != nil {
 		k.srv.Logger.Error(err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
