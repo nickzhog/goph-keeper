@@ -25,7 +25,7 @@ func main() {
 	////////////////////////////////////////////////////////////
 	fmt.Println("sign in:")
 	jwtTokenStr, err := keeperClient.LoginAccount(ctx, "user", "password")
-	keeperClient.ApplyJWT(jwtTokenStr)
+	keeperClient.ApplyToken(jwtTokenStr)
 	fmt.Println(jwtTokenStr, err)
 
 	////////////////////////////////////////////////////////////

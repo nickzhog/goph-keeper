@@ -9,8 +9,9 @@ import (
 	"github.com/nickzhog/goph-keeper/pkg/logging"
 	"github.com/nickzhog/goph-keeper/pkg/secrets"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 var _ api.KeeperClient = (*client)(nil)
@@ -19,14 +20,6 @@ type client struct {
 	c           pb.KeeperClient
 	jwtTokenStr string
 	logger      *logging.Logger
-}
-
-func (c *client) ApplyJWT(token string) {
-	c.jwtTokenStr = token
-}
-
-func (c *client) AddTokenToMetadata(ctx context.Context) context.Context {
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs("Authorization", "Bearer "+c.jwtTokenStr))
 }
 
 func NewClient(addr, certPath string, logger *logging.Logger) *client {
@@ -66,6 +59,10 @@ func (c *client) SecretsView(ctx context.Context) ([]secrets.AbstractSecret, err
 	response, err := c.c.SecretsView(ctx, &pb.SecretViewRequest{})
 
 	if err != nil {
+		errStatus, _ := status.FromError(err)
+		if errStatus.Code() == codes.Unauthenticated {
+			return nil, api.ErrInvalidToken
+		}
 		return nil, err
 	}
 
@@ -95,6 +92,11 @@ func (c *client) CreateSecret(ctx context.Context, secret secrets.AbstractSecret
 		},
 	})
 
+	errStatus, _ := status.FromError(err)
+	if errStatus.Code() == codes.Unauthenticated {
+		return api.ErrInvalidToken
+	}
+
 	return err
 }
 
@@ -105,6 +107,10 @@ func (c *client) GetSecretByID(ctx context.Context, secretID string) (secrets.Ab
 		Secretid: secretID,
 	})
 	if err != nil {
+		errStatus, _ := status.FromError(err)
+		if errStatus.Code() == codes.Unauthenticated {
+			return secrets.AbstractSecret{}, api.ErrInvalidToken
+		}
 		return secrets.AbstractSecret{}, err
 	}
 
@@ -129,12 +135,29 @@ func (c *client) UpdateSecretByID(ctx context.Context, secret secrets.AbstractSe
 		},
 	})
 
-	return err
+	if err != nil {
+		errStatus, _ := status.FromError(err)
+		if errStatus.Code() == codes.Unauthenticated {
+			return api.ErrInvalidToken
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (c *client) DeleteSecretByID(ctx context.Context, secretID string) error {
 	ctx = c.AddTokenToMetadata(ctx)
 
 	_, err := c.c.DeleteSecret(ctx, &pb.DeleteSecretRequest{Secretid: secretID})
-	return err
+
+	if err != nil {
+		errStatus, _ := status.FromError(err)
+		if errStatus.Code() == codes.Unauthenticated {
+			return api.ErrInvalidToken
+		}
+		return err
+	}
+
+	return nil
 }

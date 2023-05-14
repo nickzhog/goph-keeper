@@ -2,9 +2,12 @@ package api
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nickzhog/goph-keeper/pkg/secrets"
 )
+
+var ErrInvalidToken = errors.New("token invalid")
 
 type KeeperClient interface {
 	CreateAccount(ctx context.Context, login, password string) error
@@ -17,5 +20,6 @@ type KeeperClient interface {
 	UpdateSecretByID(ctx context.Context, secret secrets.AbstractSecret) error
 	DeleteSecretByID(ctx context.Context, secretID string) error
 
-	ApplyJWT(token string)
+	ApplyToken(token string)
+	ResetToken()
 }
