@@ -65,7 +65,7 @@ func (c *cli) createSecret(ctx context.Context) {
 			fmt.Println("error:", strconv.Quote(err.Error()))
 			return
 		}
-		note = formatInput(note)
+		note = formatNoteInput(note)
 
 		account := secretaccount.New(sitedomain, login, string(password), keytotp, note)
 		if !account.IsValid() {
@@ -87,7 +87,7 @@ func (c *cli) createSecret(ctx context.Context) {
 			fmt.Println("error:", strconv.Quote(err.Error()))
 			return
 		}
-		note = formatInput(note)
+		note = formatNoteInput(note)
 
 		bin, err := secretbinary.New(filePath, note)
 		if err != nil {
@@ -103,7 +103,7 @@ func (c *cli) createSecret(ctx context.Context) {
 			fmt.Println("error:", strconv.Quote(err.Error()))
 			return
 		}
-		note = formatInput(note)
+		note = formatNoteInput(note)
 
 		snote := secretnote.New(note)
 		secretdata = snote.Marshal()
@@ -149,7 +149,7 @@ func (c *cli) createSecret(ctx context.Context) {
 			fmt.Println("error:", strconv.Quote(err.Error()))
 			return
 		}
-		note = formatInput(note)
+		note = formatNoteInput(note)
 
 		card := secretcard.New(number, month, year, cvv, holder, note)
 		if !card.IsValid() {

@@ -115,3 +115,9 @@ func formatInput(s string) string {
 	s = strings.ReplaceAll(s, " ", "")
 	return s
 }
+func formatNoteInput(s string) string {
+	i := strings.Index(s, ":")
+	s = s[i+1:]
+	s = strings.TrimSpace(s)
+	return s
+}
