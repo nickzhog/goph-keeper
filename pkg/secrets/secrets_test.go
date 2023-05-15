@@ -11,7 +11,7 @@ func TestAbstractSecret_Decrypt(t *testing.T) {
 	a := assert.New(t)
 
 	secretData := "secret data"
-	s := NewSecret("id", "userID", "title", TypeAccount, []byte(secretData))
+	s := NewSecretWithoutEncryptedData("id", "userID", "title", TypeAccount, []byte(secretData))
 
 	priv, pub := encryption.NewRandomKeys()
 

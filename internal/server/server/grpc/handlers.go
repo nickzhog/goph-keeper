@@ -28,6 +28,7 @@ func NewKeeperServer(srv server.Server) *KeeperServer {
 func (k *KeeperServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	err := k.srv.Register(ctx, in.Login, in.Password)
 	if err != nil {
+		k.srv.Logger.Error(err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -39,6 +40,7 @@ func (k *KeeperServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Logi
 
 	tokenStr, err := k.srv.Login(ctx, in.Login, in.Password)
 	if err != nil {
+		k.srv.Logger.Error(err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -50,8 +52,9 @@ func (k *KeeperServer) SecretsView(ctx context.Context, in *pb.SecretViewRequest
 	usr := account.ReadUserFromContext(ctx)
 
 	data, err := k.srv.FindSecretsForUser(ctx, usr.ID)
-	if err == secrets.ErrNotFound {
-		return &pb.SecretViewResponse{}, nil
+	if err != nil {
+		k.srv.Logger.Errorf("user: %s, err:%v", usr.ID, err)
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	var answer pb.SecretViewResponse
@@ -72,7 +75,8 @@ func (k *KeeperServer) GetSecret(ctx context.Context, in *pb.GetSecretRequest) (
 
 	secret, err := k.srv.FindSecretByID(ctx, in.Secretid, usr.ID)
 	if err != nil {
-		return nil, err
+		k.srv.Logger.Error(err)
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	return &pb.GetSecretResponse{
@@ -88,16 +92,17 @@ func (k *KeeperServer) GetSecret(ctx context.Context, in *pb.GetSecretRequest) (
 func (k *KeeperServer) CreateSecret(ctx context.Context, in *pb.CreateSecretRequest) (*pb.CreateSecretResponse, error) {
 	usr := account.ReadUserFromContext(ctx)
 
-	secret := secrets.NewSecret(
+	secret := secrets.NewSecretWithoutEncryptedData(
 		in.Secret.Id,
 		usr.ID,
 		in.Secret.Title,
 		in.Secret.GetStype().String(),
 		in.Secret.Data)
 
-	err := k.srv.CreateSecret(ctx, *secret)
+	err := k.srv.CreateSecret(ctx, usr.ID, *secret)
 	if err != nil {
-		return nil, err
+		k.srv.Logger.Error(err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &pb.CreateSecretResponse{Ok: true}, nil
@@ -108,7 +113,8 @@ func (k *KeeperServer) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequ
 
 	err := k.srv.DeleteSecret(ctx, in.Secretid, usr.ID)
 	if err != nil {
-		return nil, err
+		k.srv.Logger.Error(err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &pb.DeleteSecretResponse{Ok: true}, nil
@@ -117,7 +123,7 @@ func (k *KeeperServer) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequ
 func (k *KeeperServer) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequest) (*pb.UpdateSecretResponse, error) {
 	usr := account.ReadUserFromContext(ctx)
 
-	secret := secrets.NewSecret(
+	secret := secrets.NewSecretWithoutEncryptedData(
 		in.Secret.Id,
 		usr.ID,
 		in.Secret.Title,
@@ -126,7 +132,8 @@ func (k *KeeperServer) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequ
 
 	err := k.srv.UpdateSecret(ctx, *secret, usr.ID)
 	if err != nil {
-		return nil, err
+		k.srv.Logger.Error(err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &pb.UpdateSecretResponse{Ok: true}, nil

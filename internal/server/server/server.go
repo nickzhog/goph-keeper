@@ -78,7 +78,7 @@ func (s *Server) FindSecretByID(ctx context.Context, secretID, userID string) (s
 	return secret, nil
 }
 
-func (s *Server) CreateSecret(ctx context.Context, secret secrets.AbstractSecret) error {
+func (s *Server) CreateSecret(ctx context.Context, userID string, secret secrets.AbstractSecret) error {
 	if err := secret.Validate(); err != nil {
 		return secrets.ErrInvalid
 	}
@@ -88,7 +88,7 @@ func (s *Server) CreateSecret(ctx context.Context, secret secrets.AbstractSecret
 		return err
 	}
 
-	return s.storage.Secrets.Create(ctx, secret)
+	return s.storage.Secrets.Create(ctx, userID, secret)
 }
 
 func (s *Server) DeleteSecret(ctx context.Context, secretID string, userID string) error {
@@ -115,6 +115,10 @@ func (s *Server) UpdateSecret(ctx context.Context, secret secrets.AbstractSecret
 	}
 	if secretOld.UserID != userID {
 		return secrets.ErrNotFound
+	}
+
+	if err := secret.Encrypt(s.pub); err != nil {
+		return secrets.ErrInvalid
 	}
 
 	return s.storage.Secrets.Update(ctx, secret)

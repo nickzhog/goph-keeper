@@ -1,0 +1,18 @@
+FROM golang:1.18-alpine3.14 AS build
+WORKDIR /gophkeeper_server
+COPY . .
+
+# COPY ./cmd/server/entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
+
+RUN go build -o server ./cmd/server
+
+FROM alpine:3.14
+WORKDIR /gophkeeper_server
+COPY --from=build /gophkeeper_server/server .
+# COPY --from=build /entrypoint.sh .
+COPY --from=build /gophkeeper_server/cert.crt .
+COPY --from=build /gophkeeper_server/private.key .
+
+
+CMD ["./server"]

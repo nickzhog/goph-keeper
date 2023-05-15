@@ -1,23 +1,77 @@
 package encryption
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"os"
 )
 
-func DecryptData(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
-	label := []byte("")
-	return rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, data, label)
+type encryptedData struct {
+	Parts [][]byte
 }
 
 func EncryptData(data []byte, publicKey *rsa.PublicKey) ([]byte, error) {
-	label := []byte("")
-	return rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, data, label)
+	keySize := publicKey.Size()
+	chunkSize := keySize - 100 // вычитаем размер дополнительных данных RSA
+
+	numChunks := (len(data) + chunkSize - 1) / chunkSize
+
+	encryptedParts := make([][]byte, numChunks)
+
+	for i := 0; i < numChunks; i++ {
+		start := i * chunkSize
+		end := (i + 1) * chunkSize
+
+		if end > len(data) {
+			end = len(data)
+		}
+
+		chunk := data[start:end]
+
+		encrypted, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, chunk, nil)
+		if err != nil {
+			return nil, fmt.Errorf("encryption error: %v", err)
+		}
+
+		encryptedParts[i] = encrypted
+	}
+
+	encData := encryptedData{Parts: encryptedParts}
+	jsonData, err := json.Marshal(encData)
+	if err != nil {
+		return nil, fmt.Errorf("JSON encoding error: %v", err)
+	}
+
+	return jsonData, nil
+}
+
+func DecryptData(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+	var encrypted encryptedData
+	err := json.Unmarshal(data, &encrypted)
+	if err != nil {
+		return nil, fmt.Errorf("JSON decoding error: %v", err)
+	}
+
+	numChunks := len(encrypted.Parts)
+	decryptedParts := make([][]byte, numChunks)
+
+	for i, encryptedPart := range encrypted.Parts {
+		decrypted, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, encryptedPart, nil)
+		if err != nil {
+			return nil, fmt.Errorf("decryption error: %v", err)
+		}
+
+		decryptedParts[i] = decrypted
+	}
+
+	decryptedData := bytes.Join(decryptedParts, nil)
+	return decryptedData, nil
 }
 
 func parseFile(filePath string) (*pem.Block, error) {

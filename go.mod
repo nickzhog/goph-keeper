@@ -4,9 +4,10 @@ go 1.19
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/chzyer/readline v1.5.1
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/pquerna/otp v1.4.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/crypto v0.8.0
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect

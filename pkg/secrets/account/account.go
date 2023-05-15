@@ -1,16 +1,24 @@
 package secretaccount
 
 import (
+	"encoding/base32"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/pquerna/otp/totp"
 )
 
 type SecretAccount struct {
-	SiteDomain string
-	Login      string
-	Password   string
-	KeyTOTP    string
-	Note       string
+	SiteDomain string `json:"site_domain,omitempty"`
+	Login      string `json:"login,omitempty"`
+	Password   string `json:"password,omitempty"`
+	KeyTOTP    string `json:"key_totp,omitempty"`
+	Note       string `json:"note,omitempty"`
+
+	CodeTOTP string
 }
 
 func (a *SecretAccount) IsValid() bool {
@@ -20,6 +28,23 @@ func (a *SecretAccount) IsValid() bool {
 	}
 
 	return true
+}
+
+func (a *SecretAccount) TotpCheck() {
+	encoded := base32.StdEncoding.EncodeToString([]byte(a.KeyTOTP))
+	s, err := totp.GenerateCode(encoded, time.Now())
+	if err != nil {
+		fmt.Println("totp err:", err)
+
+		a.CodeTOTP = "wrong totp key"
+		return
+	}
+	a.CodeTOTP = s
+}
+
+func (a *SecretAccount) Marshal() []byte {
+	data, _ := json.Marshal(a)
+	return data
 }
 
 func Unmarshal(secretData []byte) (*SecretAccount, error) {
@@ -35,4 +60,18 @@ func Unmarshal(secretData []byte) (*SecretAccount, error) {
 	}
 
 	return &account, nil
+}
+
+func New(site, login, password, keytotp, note string) *SecretAccount {
+	s := &SecretAccount{
+		SiteDomain: site,
+		Login:      login,
+		Password:   password,
+		KeyTOTP:    keytotp,
+		Note:       note,
+	}
+
+	s.KeyTOTP = strings.ReplaceAll(s.KeyTOTP, " ", "")
+
+	return s
 }
