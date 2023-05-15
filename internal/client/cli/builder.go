@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/nickzhog/goph-keeper/pkg/secrets"
 	secretaccount "github.com/nickzhog/goph-keeper/pkg/secrets/account"
@@ -27,9 +26,7 @@ func (c *cli) createSecret(ctx context.Context) {
 		fmt.Println("error:", strconv.Quote(err.Error()))
 		return
 	}
-	stypeNum = strings.TrimSpace(stypeNum)
-	stypeNum = stypeNum[len(stypeNum)-2:]
-	stypeNum = strings.TrimSpace(stypeNum)
+	stypeNum = formatInput(stypeNum)
 
 	var secretdata []byte
 	var stype string
